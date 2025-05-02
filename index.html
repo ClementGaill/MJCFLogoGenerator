@@ -32,6 +32,34 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
+        }
+
+        .vertical-logo {
+            display: flex;
+            flex-direction: column;
+            height: 201;
+            width: 167px;
+            overflow: hidden;
+        }
+
+        .numberofdepartement {
+            transform: translateY(-35px);
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            align-items: center;
+        }
+
+        .numberofdepartement p {
+            font-size: xx-large;
+            font-weight: bolder;
+            padding: 0px 8px;
+            color: #d41111;
+        }
+        
+        .title-logo-vertical {
+            padding-top: 10px;
         }
 
         .red-box {
@@ -49,6 +77,17 @@
         }
 
         .info-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            color: #d41111;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .info-row {
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -80,6 +119,10 @@
             padding-top: 2%;
         }
 
+        .vertical-departement {
+            padding-top: 7%;
+        }
+
         full-width-text {
             color: #d41111;
         }
@@ -91,7 +134,8 @@
         <div class="box">
             <label for="departement">Choisissez un département :</label>
             <select id="departement">
-                <option>01 - Ain</option>
+                <option>FR - de France</option>
+                <option>01 - de l'Ain</option>
                 <option>02 - Aisne</option>
                 <option>03 - Allier</option>
                 <option>04 - Alpes-de-Haute-Provence</option>
@@ -137,7 +181,7 @@
                 <option>43 - Haute-Loire</option>
                 <option>44 - Loire-Atlantique</option>
                 <option>45 - Loiret</option>
-                <option>46 - Lot</option>
+                <option>46 - du Lot</option>
                 <option>47 - Lot-et-Garonne</option>
                 <option>48 - Lozère</option>
                 <option>49 - Maine-et-Loire</option>
@@ -174,7 +218,7 @@
                 <option>80 - Somme</option>
                 <option>81 - Tarn</option>
                 <option>82 - Tarn-et-Garonne</option>
-                <option>83 - Var</option>
+                <option>83 - du Var</option>
                 <option>84 - Vaucluse</option>
                 <option>85 - Vendée</option>
                 <option>86 - Vienne</option>
@@ -197,17 +241,34 @@
 
         <div class="box">
             <div class="red-box" id="redBox">
-                <img src="jc.svg" alt="JC" style="fill: green;" />
-                <div class="info-column">
+                <img src="jc.svg" alt="JC" />
+                <div class="info-row">
                     <div class="line"></div>
                     <div class="info-text">
                         <div class="title">
                             <full-width-text>JEUNES</full-width-text>
                             <full-width-text>COMMUNISTE</full-width-text>
                         </div>
-                        <full-width-text class="departement-svg" id="departementDisplay">AIN</full-width-text>
+                        <full-width-text class="departement-svg" id="departementDisplay">de France</full-width-text>
                     </div>
                     <div class="line"></div>
+                </div>
+            </div>
+            <br>
+            <div class="vertical-logo" id="verticalLogo">
+                <img src="jc.svg" alt="JC" />
+                <div class="info-column">
+                    <div class="info-text">
+                        <div class="title-logo-vertical">
+                            <full-width-text>JEUNES COMMUNISTE</full-width-text>
+                        </div>
+                        <full-width-text class="departement-svg vertical-departement" id="departementDisplay">de France</full-width-text>
+                    </div>
+                    <div class="numberofdepartement">
+                        <div class="line"></div>
+                        <p>82</p>
+                        <div class="line"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -219,9 +280,11 @@
 
     select.addEventListener('change', function () {
         const selectedOption = select.options[select.selectedIndex].text;
+        const departmentCode = selectedOption.match(/^[^ -]+/)[0]; // Extrait "2A", "01", etc.
         const departmentName = selectedOption.split(' - ')[1] || selectedOption;
-        // Redirige vers la même page avec le nom du département en paramètre
-        window.location.href = window.location.pathname + '?dep=' + encodeURIComponent(departmentName.toUpperCase());
+        
+        const combined = departmentCode + '-' + departmentName.toUpperCase();
+        window.location.href = window.location.pathname + '?dep=' + encodeURIComponent(combined);
     });
 </script>
 
@@ -232,21 +295,50 @@
     }
 
     const depParam = getParam('dep');
-    if (depParam) {
-        const display = document.querySelector('.departement-svg');
-        if (display) {
-            display.textContent = depParam;
-        }
+if (depParam) {
+    const [departmentCode, ...nameParts] = depParam.split('-');
+    const departmentName = nameParts.join('-').toUpperCase();
 
-        // Optionnel : remettre le select au bon département
-        const options = document.getElementById('departement').options;
-        for (let i = 0; i < options.length; i++) {
-            if (options[i].text.includes(depParam)) {
-                options[i].selected = true;
-                break;
-            }
+    const select = document.getElementById('departement');
+    const options = Array.from(select.options);
+    let matchedOption = null;
+
+    // Normaliser pour ignorer les accents, comparer proprement
+    const normalize = str => str.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    for (let option of options) {
+        const [code, ...nameParts] = option.text.split(' - ');
+        if (!code || nameParts.length === 0) continue;
+
+        const name = nameParts.join(' - ');
+        if (normalize(code) === normalize(departmentCode) && normalize(name) === normalize(departmentName)) {
+            matchedOption = option;
+            break;
         }
     }
+
+    if (matchedOption) {
+        // ✅ Le département est valide
+        select.value = matchedOption.value;
+
+        const displays = document.querySelectorAll('.departement-svg');
+        displays.forEach(display => {
+            display.textContent = departmentName;
+        });
+
+        const depNumberElement = document.querySelector('.numberofdepartement p');
+        if (depNumberElement) {
+            depNumberElement.textContent = departmentCode;
+        }
+    } else {
+        // ❌ Département invalide : on redirige ou affiche un message
+        alert("Département invalide !");
+        window.location.href = window.location.pathname; // ou bien rester ici sans rien faire
+    }
+}
+
+
+
 </script>
 
 <script>
