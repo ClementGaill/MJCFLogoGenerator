@@ -192,7 +192,7 @@
                 <option>973 - Guyane</option>
                 <option>974 - La Réunion</option>
                 <option>976 - Mayotte</option>
-            </select>
+              </select>
         </div>
 
         <div class="box">
@@ -249,28 +249,28 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const urlParams = new URLSearchParams(window.location.search);
-        const depFromUrl = urlParams.get("dep");
-
-        if (depFromUrl) {
-            const select = document.getElementById("departement");
-            const normalizedUrlDep = depFromUrl.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-
-            for (let i = 0; i < select.options.length; i++) {
-                const optionText = select.options[i].text;
-                const namePart = optionText.split(" - ")[1];
-                if (!namePart) continue;
-
-                const normalizedOption = namePart.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                if (normalizedOption === normalizedUrlDep) {
-                    select.selectedIndex = i;
-                    break;
-                }
-            }
+      const urlParams = new URLSearchParams(window.location.search);
+      const depFromUrl = urlParams.get("dep");
+  
+      if (depFromUrl) {
+        const select = document.getElementById("departement");
+        const normalizedUrlDep = depFromUrl.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  
+        for (let i = 0; i < select.options.length; i++) {
+          const optionText = select.options[i].text;
+          const namePart = optionText.split(" - ")[1];
+          if (!namePart) continue;
+  
+          const normalizedOption = namePart.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+          if (normalizedOption === normalizedUrlDep) {
+            select.selectedIndex = i;
+            break;
+          }
         }
+      }
     });
-</script>
-
+  </script>
+  
 
 
 
