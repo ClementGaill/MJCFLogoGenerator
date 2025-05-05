@@ -7,6 +7,7 @@
     <title>Deux Fenêtres</title>
     <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" rel="stylesheet">
     <link rel="import" href="bower_components/full-width-text/full-width-text.html">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
             font-family: 'Josefin Sans', sans-serif;
@@ -25,7 +26,7 @@
 
         .container {
             display: flex;
-            gap: 40px;
+            gap: 25%;
         }
 
         .box {
@@ -57,7 +58,7 @@
             padding: 0px 8px;
             color: #d41111;
         }
-        
+
         .title-logo-vertical {
             padding-top: 10px;
         }
@@ -108,7 +109,6 @@
             text-align: center;
         }
 
-
         .line {
             width: 100%;
             height: 2px;
@@ -125,6 +125,52 @@
 
         full-width-text {
             color: #d41111;
+        }
+
+        #exportButton {
+            border-radius: 15px;
+            border: 1px solid #d41111;
+            padding: 5px;
+            color: #d41111;
+            font-weight: bold;
+            font-size: 2vh;
+            transition: all .5s ease-in-out;
+        }
+        #exportButton:hover {
+            background-color: #d41111;
+            transform: scale(1.1);
+            color: #ffff;
+            padding: 10px;
+            border-radius: 20px;
+        }
+
+        .social{
+            width: 100%;
+        }
+
+        .social-links {
+            width: 100%;
+            display: flex;
+            padding: 0;
+            margin: 0;
+            align-items: center;
+            flex-direction: row;
+            justify-content: space-around;
+            padding: 0;
+        }
+        .social-links ul {
+            margin: 0;
+            padding: 0;
+        }
+        .social-links li {
+            list-style: none;
+        }
+        .social-links li a {
+            color: #d41111;
+            font-size: 3vh;
+        }
+        p {
+            color: grey;
         }
     </style>
 </head>
@@ -236,7 +282,19 @@
                 <option>973 - Guyane</option>
                 <option>974 - La Réunion</option>
                 <option>976 - Mayotte</option>
-              </select>
+            </select>
+            <br>
+            <button id="exportButton">Exporter en PNG</button>
+            <br>
+            <div class="social">
+                <ul class="social-links">
+                    <li><a href="https://twitter.com/clementt_exe" class="twitter" target="_blank"><i class="fa-brands fa-x-twitter"></i></i></a></li>
+                    <li><a href="https://instagram.com/clementt.exe" class="instagram" target="_blank"><i class="fa-brands fa-instagram"></i></a></li>
+                </ul>
+            </div>
+            <br>
+            <br>
+            <p>© clementt_exe | 2025</p>
         </div>
 
         <div class="box">
@@ -266,7 +324,7 @@
                     </div>
                     <div class="numberofdepartement">
                         <div class="line"></div>
-                        <p>82</p>
+                        <p>FR</p>
                         <div class="line"></div>
                     </div>
                 </div>
@@ -282,7 +340,7 @@
         const selectedOption = select.options[select.selectedIndex].text;
         const departmentCode = selectedOption.match(/^[^ -]+/)[0]; // Extrait "2A", "01", etc.
         const departmentName = selectedOption.split(' - ')[1] || selectedOption;
-        
+
         const combined = departmentCode + '-' + departmentName.toUpperCase();
         window.location.href = window.location.pathname + '?dep=' + encodeURIComponent(combined);
     });
@@ -295,78 +353,73 @@
     }
 
     const depParam = getParam('dep');
-if (depParam) {
-    const [departmentCode, ...nameParts] = depParam.split('-');
-    const departmentName = nameParts.join('-').toUpperCase();
+    if (depParam) {
+        const [departmentCode, ...nameParts] = depParam.split('-');
+        const departmentName = nameParts.join('-').toUpperCase();
 
-    const select = document.getElementById('departement');
-    const options = Array.from(select.options);
-    let matchedOption = null;
+        const select = document.getElementById('departement');
+        const options = Array.from(select.options);
+        let matchedOption = null;
 
-    // Normaliser pour ignorer les accents, comparer proprement
-    const normalize = str => str.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        // Normaliser pour ignorer les accents, comparer proprement
+        const normalize = str => str.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-    for (let option of options) {
-        const [code, ...nameParts] = option.text.split(' - ');
-        if (!code || nameParts.length === 0) continue;
+        for (let option of options) {
+            const [code, ...nameParts] = option.text.split(' - ');
+            if (!code || nameParts.length === 0) continue;
 
-        const name = nameParts.join(' - ');
-        if (normalize(code) === normalize(departmentCode) && normalize(name) === normalize(departmentName)) {
-            matchedOption = option;
-            break;
+            const name = nameParts.join(' - ');
+            if (normalize(code) === normalize(departmentCode) && normalize(name) === normalize(departmentName)) {
+                matchedOption = option;
+                break;
+            }
+        }
+
+        if (matchedOption) {
+            // ✅ Le département est valide
+            select.value = matchedOption.value;
+
+            const displays = document.querySelectorAll('.departement-svg');
+            displays.forEach(display => {
+                display.textContent = departmentName;
+            });
+
+            const depNumberElement = document.querySelector('.numberofdepartement p');
+            if (depNumberElement) {
+                depNumberElement.textContent = departmentCode;
+            }
+        } else {
+            // ❌ Département invalide : on redirige ou affiche un message
+            alert("Département invalide !");
+            window.location.href = window.location.pathname; // ou bien rester ici sans rien faire
         }
     }
-
-    if (matchedOption) {
-        // ✅ Le département est valide
-        select.value = matchedOption.value;
-
-        const displays = document.querySelectorAll('.departement-svg');
-        displays.forEach(display => {
-            display.textContent = departmentName;
-        });
-
-        const depNumberElement = document.querySelector('.numberofdepartement p');
-        if (depNumberElement) {
-            depNumberElement.textContent = departmentCode;
-        }
-    } else {
-        // ❌ Département invalide : on redirige ou affiche un message
-        alert("Département invalide !");
-        window.location.href = window.location.pathname; // ou bien rester ici sans rien faire
-    }
-}
-
-
-
 </script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-      const urlParams = new URLSearchParams(window.location.search);
-      const depFromUrl = urlParams.get("dep");
-  
-      if (depFromUrl) {
-        const select = document.getElementById("departement");
-        const normalizedUrlDep = depFromUrl.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  
-        for (let i = 0; i < select.options.length; i++) {
-          const optionText = select.options[i].text;
-          const namePart = optionText.split(" - ")[1];
-          if (!namePart) continue;
-  
-          const normalizedOption = namePart.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-          if (normalizedOption === normalizedUrlDep) {
-            select.selectedIndex = i;
-            break;
-          }
+        const urlParams = new URLSearchParams(window.location.search);
+        const depFromUrl = urlParams.get("dep");
+
+        if (depFromUrl) {
+            const select = document.getElementById("departement");
+            const normalizedUrlDep = depFromUrl.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+            for (let i = 0; i < select.options.length; i++) {
+                const optionText = select.options[i].text;
+                const namePart = optionText.split(" - ")[1];
+                if (!namePart) continue;
+
+                const normalizedOption = namePart.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if (normalizedOption === normalizedUrlDep) {
+                    select.selectedIndex = i;
+                    break;
+                }
+            }
         }
-      }
     });
-  </script>
-  
-
-
+    
+</script>
 
 <script src="bower_components/webcomponentsjs/webcomponents.min.js"></script>
 
