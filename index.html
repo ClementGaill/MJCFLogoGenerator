@@ -4,10 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Deux Fenêtres</title>
+    <title>MJCF logo generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" rel="stylesheet">
-    <link rel="import" href="bower_components/full-width-text/full-width-text.html">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="import" href="bower_components/full-width-text/full-width-text.html">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         body {
             font-family: 'Josefin Sans', sans-serif;
@@ -57,6 +60,10 @@
             font-weight: bolder;
             padding: 0px 8px;
             color: #d41111;
+        }
+
+        .blanc .numberofdepartement p {
+            color: #ffff;
         }
 
         .title-logo-vertical {
@@ -115,6 +122,14 @@
             background-color: #d41111;
         }
 
+        .blanc .line {
+            background-color: #ffff;
+        }
+
+        .blanc full-width-text {
+            color: #ffff;
+        }
+
         .departement-svg {
             padding-top: 2%;
         }
@@ -127,7 +142,7 @@
             color: #d41111;
         }
 
-        #exportButton {
+        .btn {
             border-radius: 15px;
             border: 1px solid #d41111;
             padding: 5px;
@@ -136,7 +151,8 @@
             font-size: 2vh;
             transition: all .5s ease-in-out;
         }
-        #exportButton:hover {
+
+        .btn:hover {
             background-color: #d41111;
             transform: scale(1.1);
             color: #ffff;
@@ -144,7 +160,7 @@
             border-radius: 20px;
         }
 
-        .social{
+        .social {
             width: 100%;
         }
 
@@ -158,19 +174,33 @@
             justify-content: space-around;
             padding: 0;
         }
+
         .social-links ul {
             margin: 0;
             padding: 0;
         }
+
         .social-links li {
             list-style: none;
         }
+
         .social-links li a {
             color: #d41111;
             font-size: 3vh;
         }
+
         p {
             color: grey;
+        }
+
+        .copy {
+            color: grey;
+        }
+
+        .blanc {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
         }
     </style>
 </head>
@@ -284,7 +314,10 @@
                 <option>976 - Mayotte</option>
             </select>
             <br>
-            <button id="exportButton">Exporter en PNG</button>
+            <a id="exportBtn-ver" class="btn">Exporter logo vertical</a>
+            <br>
+            <a id="exportBtn-hor" class="btn">Exporter logo horizontal</a>
+            
             <br>
             <div class="social">
                 <ul class="social-links">
@@ -294,12 +327,26 @@
             </div>
             <br>
             <br>
-            <p>© clementt_exe | 2025</p>
+            <p>© <a href="https://github.com/ClementGaill" class="copy">clementt_exe</a> | 2025</p>
         </div>
 
         <div class="box">
             <div class="red-box" id="redBox">
                 <img src="jc.svg" alt="JC" />
+                <div class="info-row">
+                    <div class="line"></div>
+                    <div class="info-text">
+                        <div class="title">
+                            <full-width-text>JEUNES</full-width-text>
+                            <full-width-text>COMMUNISTE</full-width-text>
+                        </div>
+                        <full-width-text class="departement-svg" id="departementDisplay">de France</full-width-text>
+                    </div>
+                    <div class="line"></div>
+                </div>
+            </div>
+            <div class="red-box blanc" id="redBox-blanc">
+                <img src="jc-b.svg" alt="JC" />
                 <div class="info-row">
                     <div class="line"></div>
                     <div class="info-text">
@@ -320,7 +367,26 @@
                         <div class="title-logo-vertical">
                             <full-width-text>JEUNES COMMUNISTE</full-width-text>
                         </div>
-                        <full-width-text class="departement-svg vertical-departement" id="departementDisplay">de France</full-width-text>
+                        <full-width-text class="departement-svg vertical-departement" id="departementDisplay">de
+                            France</full-width-text>
+                    </div>
+                    <div class="numberofdepartement">
+                        <div class="line"></div>
+                        <p>FR</p>
+                        <div class="line"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="vertical-logo blanc" id="verticalLogo-blanc">
+                <img src="jc-b.svg" alt="JC" />
+                <div class="info-column">
+                    <div class="info-text">
+                        <div class="title-logo-vertical">
+                            <full-width-text>JEUNES COMMUNISTE</full-width-text>
+                        </div>
+                        <full-width-text class="departement-svg vertical-departement" id="departementDisplay">de
+                            France</full-width-text>
                     </div>
                     <div class="numberofdepartement">
                         <div class="line"></div>
@@ -418,9 +484,58 @@
             }
         }
     });
-    
+
+</script>
+
+<script type="text/javascript">
+    function autoClick() {
+        $("#exportBtn-ver").click();
+        $("#exportBtn-hor").click();
+    }
+
+    function getDepartmentName() {
+        const selected = $("#departement option:selected").text();
+        const name = selected.split(" - ")[1] || selected;
+        return name.toLowerCase().replace(/\s+/g, "-").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    $(document).ready(function () {
+        var hor = $("#redBox");
+        var horb = $("#redBox-blanc");
+        var ver = $("#verticalLogo");
+        var verb = $("#verticalLogo-blanc");
+
+        $("#exportBtn-hor").on('click', function () {
+            const depName = getDepartmentName();
+
+            html2canvas(hor, {
+                scale: 3,
+                useCORS: true,
+                onrendered: function (canvas) {
+                    var imageData = canvas.toDataURL("image/png");
+                    var newData = imageData.replace(/^data:image\/png/, "data:application/octet-stream");
+                    $("#exportBtn-hor").attr("download", `logo-horizontal-${depName}.png`).attr("href", newData);
+                }
+            });
+        })
+
+        $("#exportBtn-ver").on('click', function () {
+            const depName = getDepartmentName();
+
+            html2canvas(ver, {
+                scale: 3,
+                useCORS: true,
+                onrendered: function (canvas) {
+                    var imageData = canvas.toDataURL("image/png");
+                    var newData = imageData.replace(/^data:image\/png/, "data:application/octet-stream");
+                    $("#exportBtn-ver").attr("download", `logo-horizontal-${depName}.png`).attr("href", newData);
+                }
+            });
+        })
+    })
 </script>
 
 <script src="bower_components/webcomponentsjs/webcomponents.min.js"></script>
+
 
 </html>
